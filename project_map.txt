@@ -1,0 +1,15 @@
+Project Map: .
+
+📄 app.py
+📂 apps/
+    📄 backup.py
+    📄 db.py
+    📄 transactions.py
+📄 cash_management.db
+📄 generate_project_map.py
+📄 project_map.txt
+📂 templates/
+    📄 dashboard.html
+    📄 index.html
+    📄 login_register.html
+📄 users.db

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash Management</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .table-container {
+            margin: 20px auto;
+            text-align: center;
+        }
+        .header-row {
+            background-color: #bde0fe;
+            color: #000;
+        }
+        .out-row {
+            color: red;
+        }
+        .in-row {
+            color: blue;
+        }
+        .tr-clossing {
+            color: red;
+        }
+        .tr-opening {
+            color: blue;
+        }
+        .modal-content {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Cash Management</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="#table-section">Transactions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#footer">Contact</a>
+            </li>
+            <li class="nav-item">
+            <!-- Logout Button -->
+            <form action="{{ url_for('logout') }}" method="POST">
+                <button type="submit" class="btn btn-danger">Logout</button>
+            </form>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+    <div class="container">
+    <h1 class="text-center">Local Currency Calculator</h1>
+    <h3 class="text-center">Teller Balancing Assistant - TZS</h3>
+
+    <div class="table-responsive table-container">
+        <table class="table table-bordered table-hover">
+            <thead class="header-row">
+                <tr>
+                    <th>Date</th>
+                    <th>Transaction Type</th>
+                    <th>10,000.00</th>
+                    <th>5,000.00</th>
+                    <th>2,000.00</th>
+                    <th>1,000.00</th>
+                    <th>500.00</th>
+                    <th>Coins</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if transactions %}
+                    {% for transaction in transactions %}
+                        <tr class="{{ 'out-row' if transaction.transaction_type == 'out' else 'in-row' }}">
+                            <td>{{ transaction.transaction_date }}</td>
+                            <td>{{ transaction.transaction_type }}</td>
+                            <td>{{ transaction.total_10000|format_number }}</td>
+                            <td>{{ transaction.total_5000|format_number }}</td>
+                            <td>{{ transaction.total_2000|format_number }}</td>
+                            <td>{{ transaction.total_1000|format_number }}</td>
+                            <td>{{ transaction.total_500|format_number }}</td>
+                            <td>{{ transaction.total_coin|format_number }}</td>
+                            <td>{{ transaction.transaction_total|format_number }}</td>
+                            <td>
+                                <form action="{{ url_for('delete_transaction', id=transaction['id']) }}" style="display:inline;" method="POST">
+                                    <button class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                                <button type="button" class="btn btn-info btn-sm">Edit</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td class="text-center" colspan="10">No transactions in the Database.</td>
+                    </tr>
+                {% endif %}
+                <tr class="footer-row">
+                    <th colspan="2">Closing Balance</th>
+                    <th>{{ totals['10000']|format_number }}</th>
+                    <th>{{ totals['5000']|format_number }}</th>
+                    <th>{{ totals['2000']|format_number }}</th>
+                    <th>{{ totals['1000']|format_number }}</th>
+                    <th>{{ totals['500']|format_number }}</th>
+                    <th>{{ totals['coin']|format_number }}</th>
+                    <th>{{ total_sum|format_number }}</th>
+                    <th>Actions</th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center mb-3">
+    <button class="btn btn-primary" data-toggle="modal" data-target="#transactionModal" onclick="setTransactionType('in')">IN</button>
+    <button class="btn btn-danger" data-toggle="modal" data-target="#transactionModal" onclick="setTransactionType('out')">OUT</button>
+    <button class="btn btn-secondary" data-toggle="modal" data-target="#transactionModal" onclick="setTransactionType('Opening Balance')">Opening Balance</button>
+    <form method="POST" action="{{ url_for('end_day') }}" style="display:inline;">
+        <button type="submit" name="end_day" class="btn btn-warning">End Day</button>
+    </form>
+
+</div>
+
+    <!-- Modal for transaction input -->
+    <div class="modal fade" id="transactionModal" tabindex="-1" role="dialog" aria-labelledby="transactionModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="transactionModalLabel">New Transaction</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url_for('add_transaction') }}" method="POST" class="mt-4">
+                        <div class="form-group">
+                            <label for="transactionType">Transaction Type</label>
+                            <input type="text" class="form-control" id="transactionType" name="transactionType" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-10000">10,000.00</label>
+                            <input type="number" class="form-control" id="input-10000" name="input-10000" value="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-5000">5,000.00</label>
+                            <input type="number" class="form-control" id="input-5000" name="input-5000" value="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-2000">2,000.00</label>
+                            <input type="number" class="form-control" id="input-2000" name="input-2000" value="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-1000">1,000.00</label>
+                            <input type="number" class="form-control" id="input-1000" name="input-1000" value="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-500">500.00</label>
+                            <input type="number" class="form-control" id="input-500" name="input-500" value="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-coin">Coins</label>
+                            <input type="number" class="form-control" id="input-coin" name="input-coin" value="0" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setTransactionType(type) {
+        const modalLabel = document.getElementById('transactionModalLabel');
+        const transactionTypeInput = document.getElementById('transactionType');
+        modalLabel.textContent = type.charAt(0).toUpperCase() + type.slice(1) + " Transaction";
+        transactionTypeInput.value = type;
+        document.getElementById("transactionForm").reset(); // Clear form fields
+        document.getElementById("transactionId").value = ""; // Clear the ID for a new transaction
+    }
+
+    function editTransaction(transaction) {
+        // Populate the modal with transaction data
+        document.getElementById("transactionId").value = transaction.id;
+        document.getElementById("transactionType").value = transaction.transaction_type;
+        document.getElementById("input-10000").value = transaction.total_10000;
+        document.getElementById("input-5000").value = transaction.total_5000;
+        document.getElementById("input-2000").value = transaction.total_2000;
+        document.getElementById("input-1000").value = transaction.total_1000;
+        document.getElementById("input-500").value = transaction.total_500;
+        document.getElementById("input-coin").value = transaction.total_coin;
+
+        // Update modal title and open it
+        document.getElementById("transactionModalLabel").textContent = "Edit Transaction";
+        $('#transactionModal').modal('show');
+    }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

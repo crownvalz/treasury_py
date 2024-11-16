@@ -1,0 +1,91 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Dashboard</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert alert-{{ messages[0][0] }} alert-dismissible fade show" role="alert">
+                    {{ messages[0][1] }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <h3>Transactions</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Transaction Type</th>
+                    <th>Total 10000</th>
+                    <th>Total 5000</th>
+                    <th>Total 2000</th>
+                    <th>Total 1000</th>
+                    <th>Total 500</th>
+                    <th>Total Coins</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.transaction_date }}</td>
+                    <td>{{ transaction.transaction_type }}</td>
+                    <td>{{ transaction.total_10000 }}</td>
+                    <td>{{ transaction.total_5000 }}</td>
+                    <td>{{ transaction.total_2000 }}</td>
+                    <td>{{ transaction.total_1000 }}</td>
+                    <td>{{ transaction.total_500 }}</td>
+                    <td>{{ transaction.total_coin }}</td>
+                    <td>
+                        <form action="{{ url_for('delete_transaction', id=transaction.id) }}" method="POST">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Summary</h3>
+        <p>Total Sum: {{ total_sum }}</p>
+        <p>Closing Balance: {{ closing_balance }}</p>
+
+        <!-- Form for adding a new transaction -->
+        <form method="POST" action="{{ url_for('add_transaction') }}">
+            <div class="form-group">
+                <label for="transactionType">Transaction Type</label>
+                <select class="form-control" name="transactionType" id="transactionType" required>
+                    <option value="in">In</option>
+                    <option value="out">Out</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="input-10000">10000</label>
+                <input type="number" class="form-control" name="input-10000" id="input-10000">
+            </div>
+            <div class="form-group">
+                <label for="input-5000">5000</label>
+                <input type="number" class="form-control" name="input-5000" id="input-5000">
+            </div>
+            <!-- Other denominations fields here -->
+            <button type="submit" class="btn btn-success">Add Transaction</button>
+        </form>
+
+        <form method="POST" action="{{ url_for('end_day') }}">
+            <button type="submit" class="btn btn-primary mt-3">End Day</button>
+        </form>
+    </div>
+
+    <script src

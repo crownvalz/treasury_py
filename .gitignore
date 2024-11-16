@@ -1,0 +1,49 @@
+# Ignore Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore environment files
+.env
+
+# Ignore SQLite database files
+*.db
+*.sqlite
+
+# Ignore virtual environment
+.venv/
+venv/
+
+# Ignore node modules (if using Node.js)
+node_modules/
+
+# Ignore log files
+*.log
+
+# Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# macOS system files
+.DS_Store
+
+# Database files
+*.db
+*.sqlite
+
+# Virtual environment folder
+.venv/
+venv/
+
+# Heroku deployment files (if applicable)
+.heroku/
+
+# IDE-specific files (for example, VSCode)
+.vscode/
+
+# Log files
+*.log
