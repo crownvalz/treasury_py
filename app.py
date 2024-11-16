@@ -28,7 +28,7 @@ def get_user_db_connection():
         print(f"User database connection error: {e}")
         return None
 
-# Initialize databases
+# Initialize db
 def init_db():
     try:
         # Initialize cash management database
